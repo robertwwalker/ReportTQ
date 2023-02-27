@@ -1,0 +1,65 @@
+---
+title: "The Reports Repository"
+author: "Robert W. Walker"
+bibliography: "bibliography.bib"
+nocite: |
+     @*
+format: 
+   html:
+     self-contained-math: true
+     code-fold: true
+     code-copy: hover
+     code-block-border-left: true
+     df-print: paged
+     fig-format: retina
+     footnotes-hover: true
+     html-math-method: katex
+     mainfont: Playfair Display
+     toc: true
+     toc-title: Navigation
+     theme: simplex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+```
+
+
+The function is run at the root of this project.
+
+```
+library(tidyquant)
+library(rmarkdown)
+library(purrr)
+Equity.Analyser <- function(x) {
+  render("TQ-Parameters.qmd", 
+         params = list(ticker = x), 
+         output_file = paste0("docs/files/",x,".html"))
+}
+SP400 <- tq_index("SP400")
+SP400$symbol %>% map(., function(x) { Equity.Analyser(x)})
+```
+
+## A Big Table
+
+```{r}
+library(tidyquant)
+library(tidyverse)
+library(DT)
+library(magrittr)
+SP400 <- tq_index("SP400")
+SP400 %<>% mutate(weight = round(weight, digits=3), 
+                  links=paste0("https://robertwwalker.github.io/ReportTQ/files/",symbol,".html", sep=""), 
+                  file=paste0("Report on ",company,sep=""),
+                  sector=as.factor(sector),
+                  ) %>% mutate(Report = paste0('<a  target=_blank href=\'', links, '\' >', file,'</a>' ))
+SP400.Res <- SP400 %>% select(-c(file, links, company)) %>% relocate(Report, .after=symbol)
+datatable(SP400.Res, filter="top", escape=FALSE)
+```
+
+# References
+
+```{r}
+knitr::write_bib(names(sessionInfo()$otherPkgs), file="bibliography.bib")
+```
+
