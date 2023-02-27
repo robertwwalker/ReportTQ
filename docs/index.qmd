@@ -17,7 +17,7 @@ format:
      mainfont: Playfair Display
      toc: true
      toc-title: Navigation
-     theme: lux
+     theme: simplex
 ---
 
 ```{r setup, include=FALSE}
@@ -53,14 +53,19 @@ SP400 %<>% mutate(weight = round(weight, digits=3),
                   file=paste0("Report on ",company,sep=""),
                   sector=as.factor(sector),
                   ) %>% mutate(Report = paste0('<a  target=_blank href=\'', links, '\' >', file,'</a>' ))
-SP400.Res <- SP400 %>% select(-c(file, links, company)) %>% relocate(Report, .after=symbol)
-datatable(SP400.Res, filter="top", escape=FALSE, colnames = c('Ticker', 'Report Link', 'CUSIP', 'SEDOL', 'Weight','Sector','Shares Held','Currency'))
+SP400.Res <- SP400 %>% select(-c(file, links, company)) %>% relocate(Report, .after=symbol) %>% relocate(sector, .after=Report)
+datatable(SP400.Res, 
+          filter="top", 
+          escape=FALSE, 
+          colnames = c('Ticker', 'Report Link', 'Sector', 'CUSIP', 'SEDOL', 'Weight','Shares Held','Currency'), 
+          rownames = FALSE)
 ```
 
 ## The Items
 
 - Ticker
-- Company
+- Sector
+- Report on Company
 - CUSIP [Committee on Uniform Securities Identification Procedures]
 - SEDOL [Stock Exchange Daily Official List]
 
