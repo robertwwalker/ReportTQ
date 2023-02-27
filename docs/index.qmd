@@ -57,6 +57,27 @@ SP400.Res <- SP400 %>% select(-c(file, links, company)) %>% relocate(Report, .af
 datatable(SP400.Res, filter="top", escape=FALSE, colnames = c('Ticker', 'Report Link', 'CUSIP', 'SEDOL', 'Weight','Sector','Shares Held','Currency'))
 ```
 
+## The Items
+
+- Ticker
+- Company
+- CUSIP [Committee on Uniform Securities Identification Procedures]
+- SEDOL [Stock Exchange Daily Official List]
+
+Some components of the index.
+
+## An Example File as `iframe`
+
+<iframe src="https://robertwwalker.github.io/ReportTQ/files/FICO.html" width="680" height="600" allowfullscreen></iframe>
+
+![Screen shot](img/Screenshot 2023-02-26 at 9.30.06 PM.png)
+
+## Some Slides as `iframe`
+
+<iframe src="https://robertwwalker.github.io/CWD-Slides/week-6/index.html" width="680" height="600" allowfullscreen></iframe>
+
+![Screen shot](img/Screenshot 2023-02-26 at 9.30.19 PM.png)
+
 # References
 
 ```{r}
