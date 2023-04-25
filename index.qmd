@@ -7,6 +7,7 @@ nocite: |
 format: 
    html:
      self-contained-math: true
+     embed-resources: true
      code-fold: true
      code-copy: hover
      code-block-border-left: true
@@ -33,8 +34,8 @@ library(quarto)
 library(purrr)
 Equity.Analyser <- function(x) {
   quarto_render("TQ-Parameters.qmd", 
-         execute_params = list(ticker = x), 
-         output_file = paste0(x,".html"))
+                execute_params = list(ticker = x), 
+                output_file = paste0(x,".html"))
 }
 SP400 <- tq_index("SP400")
 SP400$symbol %>% map(., function(x) { Equity.Analyser(x)})
