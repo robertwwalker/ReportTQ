@@ -34,10 +34,10 @@ library(purrr)
 Equity.Analyser <- function(x) {
   render("TQ-Parameters.qmd", 
          params = list(ticker = x), 
-         output_file = paste0("docs/files/",x,".html"))
+         output_file = paste0("docs/files2/",x,".html"))
 }
-SP400 <- tq_index("SP400")
-SP400$symbol %>% map(., function(x) { Equity.Analyser(x)})
+SP500 <- tq_index("SP500")
+SP500$symbol %>% map(., function(x) { Equity.Analyser(x)})
 ```
 
 ## A Big Table

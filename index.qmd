@@ -29,12 +29,12 @@ The function is run at the root of this project.
 
 ```
 library(tidyquant)
-library(rmarkdown)
+library(quarto)
 library(purrr)
 Equity.Analyser <- function(x) {
-  render("TQ-Parameters.qmd", 
-         params = list(ticker = x), 
-         output_file = paste0("docs/files/",x,".html"))
+  quarto_render("TQ-Parameters.qmd", 
+         execute_params = list(ticker = x), 
+         output_file = paste0(x,".html"))
 }
 SP400 <- tq_index("SP400")
 SP400$symbol %>% map(., function(x) { Equity.Analyser(x)})
