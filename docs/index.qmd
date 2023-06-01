@@ -24,8 +24,15 @@ format:
 knitr::opts_chunk$set(message=FALSE, warning=FALSE)
 ```
 
+# The Entire Process
 
-The function is run at the root of this project.
+I want to generate parameterized R Markdown documents and then link them via a table.  This will go in two parts.
+
+1. I will show two ways to make use of parameterized markdown and R.  I will deploy RMarkdown and then quarto markdown.  Each has advantages and deficiencies, as you will see.
+2. I want to build a table of the documents.
+## RMarkdown
+
+RMarkdown with parameters is a bit easier because of the way that it handles output directories and the like.  For example, in the first iteration of this project, I could use something like the following to render all of the documents to some specified target directory.  *NB: Because this is all built for github pages, the root of the served directory defaults to /docs.*  
 
 ```
 library(tidyquant)
@@ -34,20 +41,49 @@ library(purrr)
 Equity.Analyser <- function(x) {
   render("TQ-Parameters.qmd", 
          params = list(ticker = x), 
-         output_file = paste0("docs/files2/",x,".html"))
+         output_file = paste0("docs/files/",x,".html"))
 }
 SP500 <- tq_index("SP500")
 SP500$symbol %>% map(., function(x) { Equity.Analyser(x)})
 ```
 
+## Quarto
+
+This took two steps.  The first one is to locate where I want the files to appear.  In this case, I want them to show up in the `docs/files` directory.  On the Mac, I can deliberately select the working directory like so.
+
+```
+setwd("/Vols/Work/ReportTQ/docs/files")
+```
+
+The issue is that the input file is in the root and `quarto_render` doesn't really like this.  Instead, I copy the bibliography file and the template [`TQ-Parameters.qmd`] to this same directory and then invoke from there. With a working directory set, I can then invoke the `map` with `quarto_render` and get the files rendered.
+
+```
+library(tidyquant)
+library(quarto)
+library(purrr)
+Equity.Analyser <- function(x) {
+  quarto_render("TQ-Parameters.qmd", 
+                execute_params = list(ticker = x), 
+                output_file = paste0(x,".html"))
+}
+SP400 <- tq_index("SP400")
+SP400$symbol %>% map(., function(x) { Equity.Analyser(x)})
+```
+
+Once I have executed the above, the .html files will be addressable from an expected location with an expected name.  Let me now turn to building that table.
+
 ## A Big Table
+
+I want to use datatable for this.  Most of the data comes packaged appropriately from `tq_index`; I need to match up the naming conventions for the .html files to the directory and naming conventions of the .html.
 
 ```{r}
 library(tidyquant)
 library(tidyverse)
 library(DT)
 library(magrittr)
+# Grab the relevant index
 SP400 <- tq_index("SP400")
+# Mutate the relevant columns, combine them, round them, and select what we want to display.
 SP400 %<>% mutate(weight = round(weight, digits=3), 
                   links=paste0("https://robertwwalker.github.io/ReportTQ/files/",symbol,".html", sep=""), 
                   file=paste0("Report on ",company,sep=""),
@@ -61,6 +97,8 @@ datatable(SP400.Res,
           rownames = FALSE)
 ```
 
+What do we have?
+
 ## The Items
 
 - Ticker
@@ -73,15 +111,10 @@ Some components of the index.
 
 ## An Example File as `iframe`
 
-<iframe src="https://robertwwalker.github.io/ReportTQ/files/FICO.html" width="680" height="600" allowfullscreen></iframe>
+<iframe src="https://robertwwalker.github.io/ReportTQ/files/EXPO.html" width="680" height="600" allowfullscreen></iframe>
 
-![Screen shot](img/Screenshot 2023-02-26 at 9.30.06 PM.png)
+![Screen shot](img/EXPO.png)
 
-## Some Slides as `iframe`
-
-<iframe src="https://robertwwalker.github.io/CWD-Slides/week-6/index.html" width="680" height="600" allowfullscreen></iframe>
-
-![Screen shot](img/Screenshot 2023-02-26 at 9.30.19 PM.png)
 
 # References
 

@@ -8,7 +8,6 @@ params:
   ticker: "F"
 format: 
    html:
-     self-contained: true
      self-contained-math: true
      code-fold: true
      code-copy: hover
@@ -25,10 +24,7 @@ format:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(cache=TRUE, message=FALSE, warning=FALSE)
-```
-
-```{r include = FALSE}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
 library(tidyquant)
 library(ggplot2)
 library(fpp3)

@@ -1,0 +1,125 @@
+---
+title: "Analysing Equities"
+author: "Robert W. Walker"
+bibliography: "bibliography.bib"
+nocite: |
+     @*
+params:
+  ticker: "F"
+format: 
+   html:
+     self-contained-math: true
+     code-fold: true
+     code-copy: hover
+     code-block-border-left: true
+     df-print: paged
+     embed-resources: true
+     fig-format: retina
+     footnotes-hover: true
+     html-math-method: katex
+     mainfont: Playfair Display
+     toc: true
+     toc-title: Navigation
+     theme: simplex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+library(tidyquant)
+library(ggplot2)
+library(fpp3)
+```
+
+# `r params$ticker`
+
+The [tidyquant](https://cran.r-project.org/web/packages/tidyquant/index.html) package provides tools and data for visualizing and analysing equities. Here is an example using data from `r toString(params$ticker)`.
+
+```{r}
+dat <- tq_get(toString(params$ticker))
+dat %>% ggplot(aes(x = date, y = close)) +
+    geom_barchart(aes(open = open, high = high, low = low, close = close)) +
+    labs(title = paste(params$ticker,"Bar Chart"), y = "Closing Price", x = "") +
+    theme_tq()
+```
+
+Or functions of the data, like returns.
+
+```{r}
+dat.new <- dat %>% tq_transmute(select= adjusted,
+                 mutate_fun = periodReturn,
+                 period     = "daily",
+                 col_rename = "Ra") %>% as_tsibble(index=date) 
+dat.new %>% autoplot()
+```
+
+## Adding Some Interactives
+
+The following are a few quick interactive plots.
+
+```{r}
+library(tidyquant)
+library(tidyverse)
+library(magrittr)
+# Use tidyquant to get the data
+# Slice off the most recent 120 days
+dat.tail <- tail(dat, 120)
+dat.tail %<>% mutate(
+    open = round(open, digits=2),
+    close = round(close, digits=2),
+    high = round(high, digits=2),
+    low = round(low, digits=2),
+    adjusted = round(adjusted, digits=2)
+    )
+```
+
+Let's have a look at the data.
+
+```{r}
+library(DT)
+datatable(dat.tail)
+```
+
+## The Plot
+
+There are a few charts specifically designed for OHLC data that are included in `plotly`.  Here I want to deploy a basic one with one modification.  I want daily increases in black and daily decreases in red.
+
+```{r}
+library(plotly)
+# basic example of ohlc charts
+# custom colors
+i <- list(line = list(color = '#000000')) # black
+d <- list(line = list(color = '#FF0000')) # red
+# Create the figure
+fig.2 <- dat.tail %>%
+  plot_ly(x = ~date, type="ohlc",
+          open = ~open, close = ~close,
+          high = ~high, low = ~low,
+          increasing = i, decreasing = d)
+fig.2
+```
+
+## `ggplot` candlestick
+
+```{r}
+dat %>%
+    ggplot(aes(x = date, y = close)) +
+    geom_candlestick(aes(open = open, high = high, low = low, close = close)) +
+    labs(title = paste0(params$ticker," Candlestick Chart", sep=""), y = "Closing Price", x = "") +
+    theme_tq()
+```
+
+## Another Plot
+
+```{r}
+dat %>%
+    ggplot(aes(x = date, y = close)) +
+    geom_barchart(aes(open = open, high = high, low = low, close = close)) +
+    geom_ma(ma_fun = EMA, n = 50, wilder = TRUE, linetype = 5, size = 1.25) +
+    geom_ma(ma_fun = EMA, n = 200, wilder = TRUE, color = "red", size = 1.25) + 
+    labs(title = paste0(dat$symbol," Bar Chart", sep=""), 
+         subtitle = "50 and 200-Day EMA", 
+         y = "Closing Price", x = "") + 
+    coord_x_date() +
+    theme_tq()
+```
+
